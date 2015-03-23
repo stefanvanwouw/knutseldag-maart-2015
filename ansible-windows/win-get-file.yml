@@ -1,0 +1,10 @@
+---
+# Playbook example
+- name: Download notepad install file
+  hosts: win-ontw
+  gather_facts: false
+
+  tasks:
+    - win_get_url:
+        url: 'http://dl.notepad-plus-plus.org/downloads/6.x/6.7.5/npp.6.7.5.Installer.exe'
+        dest: 'C:/Temp/npp.6.7.5.Installer.exe'
