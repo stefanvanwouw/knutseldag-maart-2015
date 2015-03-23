@@ -1,0 +1,13 @@
+---
+
+- name: Launch Redmine Server
+  docker: >
+    image=progrium/consul
+    name=consul
+    hostname={{ ansible_hostname }}
+    ports={{consul_bind_ip}}:8300:8300,{{consul_bind_ip}}:8301:8301,{{consul_bind_ip}}:8301:8301/udp,{{consul_bind_ip}}:8302:8302,{{consul_bind_ip}}:8302:8302/udp,{{consul_bind_ip}}:8400:8400,{{consul_bind_ip}}:8500:8500,{{consul_docker0_ip}}:53:53/udp
+    command="-server -bootstrap-expect 3 -advertise {{consul_advertise_ip}} -ui-dir /ui"
+    env="SERVICE_IGNORE=true"
+    state=running
+  when: consul_first_host
+  tags: deploy_docker_containers

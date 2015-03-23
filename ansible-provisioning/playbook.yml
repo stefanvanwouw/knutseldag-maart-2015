@@ -1,0 +1,5 @@
+---
+- hosts: docker_hosts
+  sudo: True
+  roles:
+    - consul_server

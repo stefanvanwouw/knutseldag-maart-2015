@@ -1,0 +1,55 @@
+---
+
+# Note that we would require a Data-Onyl container for consul (or volume mapping to host dir) to persist state on restarts.
+# The ARP bug is present, however, so after restart the leader might be still set to an old IP.
+# https://github.com/progrium/docker-consul#quickly-restarting-a-node-using-the-same-ip-issue
+
+- name: Remove Old Consul Server
+  docker: >
+    image=progrium/consul
+    name=consul
+    state=absent
+  tags: deploy_docker_containers
+
+- name: Launch Consul Server (First Host)
+  docker: >
+    image=progrium/consul
+    name=consul
+    hostname={{ ansible_hostname }}
+    ports={{consul_bind_ip}}:8300:8300,{{consul_bind_ip}}:8301:8301,{{consul_bind_ip}}:8301:8301/udp,{{consul_bind_ip}}:8302:8302,{{consul_bind_ip}}:8302:8302/udp,{{consul_bind_ip}}:8400:8400,{{consul_bind_ip}}:8500:8500,{{consul_docker0_ip}}:53:53/udp
+    command="-server -bootstrap-expect 3 -advertise {{consul_advertise_ip}} -ui-dir /ui"
+    env="SERVICE_IGNORE=true"
+    state=running
+  when: consul_first_host
+  tags: deploy_docker_containers
+
+
+- name: Launch Consul Server
+  docker: >
+    image=progrium/consul
+    name=consul
+    hostname={{ ansible_hostname }}
+    ports={{consul_bind_ip}}:8300:8300,{{consul_bind_ip}}:8301:8301,{{consul_bind_ip}}:8301:8301/udp,{{consul_bind_ip}}:8302:8302,{{consul_bind_ip}}:8302:8302/udp,{{consul_bind_ip}}:8400:8400,{{consul_bind_ip}}:8500:8500,{{consul_docker0_ip}}:53:53/udp
+    command="-server -advertise {{consul_advertise_ip}} -join {{consul_join_ip}} -ui-dir /ui"
+    env="SERVICE_IGNORE=true"
+    state=running
+  when: not consul_first_host
+  tags: deploy_docker_containers
+
+- name: Remove Old Registrator
+  docker: >
+    image=progrium/registrator
+    name=registrator
+    state=absent
+  tags: deploy_docker_containers
+
+- name: Launch Registrator
+  docker: >
+    image=progrium/registrator
+    name=registrator
+    hostname={{ ansible_hostname }}
+    volumes=/var/run/docker.sock:/tmp/docker.sock
+    command="consul://{{consul_advertise_ip}}:8500"
+    state=running
+  tags: deploy_docker_containers
+

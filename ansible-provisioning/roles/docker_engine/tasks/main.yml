@@ -1,0 +1,32 @@
+---
+- name: Add Docker Repository Key
+  apt_key: keyserver=keyserver.ubuntu.com id=36A1D7869245C8950F966E92D8576A8BA88D21E9
+  tags: docker_install
+
+- name: Add Docker Repository
+  apt_repository: repo='deb https://get.docker.com/ubuntu docker main' state=present
+  tags: docker_install
+
+- name: Install Docker Daemon
+  apt: name=lxc-docker update_cache=true state=present
+  tags: docker_install
+
+- name: Purge Pip (python-pip package is broken)
+  apt: name=python-pip state=absent
+  tags: docker_install
+
+- name: Install Pip (python-pip package is broken)
+  script: get-pip.py
+  tags: docker_install
+
+- name: Install Docker Python Client Library
+  pip: name=docker-py state=present
+  tags: docker_install
+
+- name: Add Docker Daemon Configuration
+  template: src=docker.j2 dest=/etc/default/docker owner=root group=root mode=0644
+  notify: restart_docker_daemon
+  tags: docker_install
+
+# Make sure the docker restart happens here when it is triggered by config changes.
+- meta: flush_handlers

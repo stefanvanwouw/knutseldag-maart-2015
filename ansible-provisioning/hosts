@@ -1,0 +1,4 @@
+[docker_hosts]
+knutsel1.ontw.geodan.nl consul_first_host=True
+knutsel2.ontw.geodan.nl consul_join_ip="{{hostvars['knutsel1.ontw.geodan.nl']['ansible_default_ipv4']['address']}}"
+knutsel3.ontw.geodan.nl consul_join_ip="{{hostvars['knutsel1.ontw.geodan.nl']['ansible_default_ipv4']['address']}}"
