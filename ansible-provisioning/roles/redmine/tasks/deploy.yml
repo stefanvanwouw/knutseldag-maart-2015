@@ -1,13 +1,57 @@
 ---
 
-- name: Launch Redmine Server
-  docker: >
-    image=progrium/consul
-    name=consul
-    hostname={{ ansible_hostname }}
-    ports={{consul_bind_ip}}:8300:8300,{{consul_bind_ip}}:8301:8301,{{consul_bind_ip}}:8301:8301/udp,{{consul_bind_ip}}:8302:8302,{{consul_bind_ip}}:8302:8302/udp,{{consul_bind_ip}}:8400:8400,{{consul_bind_ip}}:8500:8500,{{consul_docker0_ip}}:53:53/udp
-    command="-server -bootstrap-expect 3 -advertise {{consul_advertise_ip}} -ui-dir /ui"
-    env="SERVICE_IGNORE=true"
-    state=running
-  when: consul_first_host
-  tags: deploy_docker_containers
+# Data-Only containers.
+- name: Deploy Redmine PostgreSQL Data-Only Container
+  docker:
+    image: sameersbn/postgresql:9.1-1
+    name: redmine-postgresql-data
+    command: "true"
+    state: present
+  tags:
+    - deploy_docker_data_containers
+    - deploy_redmine
+
+- name: Remove Old Redmine PostgreSQL Container
+  docker: image=sameersvn/postgresql:9.1-1 name=redmine-postgresql state=absent
+  tags:
+    - deploy_docker_containers
+    - deploy_redmine
+
+
+- name: Deploy Redmine PostgreSQL
+  docker:
+    image: sameersbn/postgresql:9.1-1
+    name: redmine-postgresql
+    volumes_from: redmine-postgresql-data
+    env:
+      SERVICE_IGNORE: true
+      DB_USER: redmine
+      DB_PASS: phatiphohsukeuwo
+      DB_NAME: redmine_production
+    state: running
+  tags:
+    - deploy_docker_containers
+    - deploy_redmine
+
+- name: Remove Old Redmine App Container
+  docker: image=sameersvn/redmine:2.6.2 name=redmine-app state=absent
+  tags:
+    - deploy_docker_containers
+    - deploy_redmine
+
+- name: Deploy Redmine App
+  docker:
+    image: sameersbn/redmine:2.6.2
+    name: redmine-app
+    env:
+      SERVICE_NAME: redmine
+      DB_USER: redmine
+      DB_PASS: phatiphohsukeuwo
+      DB_NAME: redmine_production
+    state: running
+    links: redmine-postgresql:postgresql
+    ports: 10080:80
+  tags:
+    - deploy_docker_containers
+    - deploy_redmine
+

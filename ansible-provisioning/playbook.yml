@@ -3,3 +3,8 @@
   sudo: True
   roles:
     - consul_server
+
+- hosts: redmine_host
+  sudo: True
+  roles:
+    - redmine
