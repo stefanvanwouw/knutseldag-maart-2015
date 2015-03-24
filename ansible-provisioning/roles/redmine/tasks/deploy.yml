@@ -11,6 +11,16 @@
     - deploy_docker_data_containers
     - deploy_redmine
 
+- name: Deploy Redmine App Data-Only Container
+  docker:
+    image: sameersbn/redmine:2.6.2
+    name: redmine-app-data
+    command: "true"
+    state: present
+  tags:
+    - deploy_docker_data_containers
+    - deploy_redmine
+
 - name: Remove Old Redmine PostgreSQL Container
   docker: image=sameersvn/postgresql:9.1-1 name=redmine-postgresql state=absent
   tags:
@@ -41,7 +51,7 @@
 
 - name: Deploy Redmine App
   docker:
-    image: sameersbn/redmine:2.6.2
+    image: redmine-backlogs
     name: redmine-app
     env:
       SERVICE_NAME: redmine

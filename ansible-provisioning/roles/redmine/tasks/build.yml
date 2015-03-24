@@ -1,1 +1,18 @@
 ---
+- name: Copy Docker Image Sources
+  copy: src=docker-images dest=/tmp/
+  tags:
+    - build_docker_images
+    - build_redmine
+
+- name: Build Redmine Docker Image
+  docker_image: path="/tmp/docker-images/redmine" name="redmine" state=build
+  tags:
+    - build_docker_images
+    - build_redmine
+
+- name: Build Redmine Backlogs Docker Image
+  docker_image: path="/tmp/docker-images/redmine-backlogs" name="redmine-backlogs" state=build
+  tags:
+    - build_docker_images
+    - build_redmine

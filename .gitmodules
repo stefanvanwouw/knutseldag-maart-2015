@@ -1,0 +1,7 @@
+[submodule "ansible-provisioning/roles/redmine/files/docker-images/redmine"]
+	path = ansible-provisioning/roles/redmine/files/docker-images/redmine
+	url = git://github.com/stefanvanwouw/docker-redmine.git
+	branch = 2.6-stable
+[submodule "ansible-provisioning/roles/redmine/files/docker-images/redmine-backlogs/assets/redmine_backlogs"]
+	path = ansible-provisioning/roles/redmine/files/docker-images/redmine-backlogs/assets/redmine_backlogs
+	url = git://github.com/stefanvanwouw/redmine_backlogs.git

@@ -1,0 +1,11 @@
+#!/bin/bash
+set -e
+
+mkdir /home/redmine/data/plugins
+cp -r /app/plugins/* /home/redmine/data/plugins/
+#unzip /app/plugins/redmine_backlogs-master.zip
+#rm /app/plugins/redmine_backlogs-master.zip
+
+/app/init "$@"
+
+
