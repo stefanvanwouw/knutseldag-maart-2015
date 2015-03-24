@@ -1,0 +1,10 @@
+---
+- name: restart swarm_manager
+  service: >
+    name=docker_swarm_manager
+    state=restarted
+
+- name: restart swarm_agent
+  service: >
+    name=docker_swarm_agent
+    state=restarted

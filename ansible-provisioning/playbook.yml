@@ -2,6 +2,7 @@
 - hosts: docker_hosts
   sudo: True
   roles:
+    - docker_swarm
     - consul_server
 
 - hosts: redmine_host

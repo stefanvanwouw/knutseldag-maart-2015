@@ -1,0 +1,47 @@
+---
+
+# Heavily based on examples from https://github.com/technolo-g/docker-swarm-demo. Giving credit where credit is due.
+
+- name: Install the Swarm binary
+  get_url: >
+    url=https://s3-us-west-2.amazonaws.com/technolo-g/bins/ubuntu/trusty/swarm
+    dest=/usr/local/bin/swarm
+    mode=0775
+  tags: docker_swarm_install
+
+
+- name: Ship the upstart config for manager
+  template: >
+    src=docker_swarm_manager_upstart.conf.j2
+    dest=/etc/init/docker_swarm_manager.conf
+    owner=root
+    group=root
+    mode=0644
+  notify:
+    - restart swarm_manager
+  tags: docker_swarm_install
+
+- name: Ship the upstart config for agent
+  template: >
+    src=docker_swarm_agent_upstart.conf.j2
+    dest=/etc/init/docker_swarm_agent.conf
+    owner=root
+    group=root
+    mode=0644
+  notify:
+    - restart swarm_agent
+  tags: docker_swarm_install
+
+- name: Start and enable Swarm Agent
+  service: >
+    name=docker_swarm_agent
+    state=started
+    enabled=true
+  tags: docker_swarm_install
+
+- name: Start and enable Swarm Manager
+  service: >
+    name=docker_swarm_manager
+    state=started
+    enabled=true
+  tags: docker_swarm_install

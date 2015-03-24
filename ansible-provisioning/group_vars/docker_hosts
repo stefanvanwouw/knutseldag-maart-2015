@@ -1,4 +1,4 @@
 ---
 # Use the consul DNS by default, and if no match, use the Google DNS.
 # The consul DNS is published on the docker0 adapter (172.17.42.1 by default)
-docker_opts: "--dns 172.17.42.1 --dns 8.8.8.8 --dns-search service.consul"
+docker_opts: "--dns 172.17.42.1 --dns 8.8.8.8 --dns-search service.consul -H unix:///var/run/docker.sock -H tcp://0.0.0.0:2375"
