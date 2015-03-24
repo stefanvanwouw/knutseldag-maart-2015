@@ -1,0 +1,12 @@
+---
+# Draaien met: ansible-playbook win_users.yml -i win-inventory
+# Toevoegen aan groep lijkt niet goed te werken
+- name: Add a user
+  hosts: win-ontw
+  gather_facts: false
+  tasks:
+    - name: Add User
+      win_user:
+        name: ansibletest
+        password: "@ns1bl3"
+        groups: ["Users"]
