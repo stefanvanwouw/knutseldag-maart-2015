@@ -1,31 +1,29 @@
 Ansible, controlling Windows hosts
 ----------------------------------
 
-Wat
----
+Steps followed to test the Windows functionality
+--------------------
 
-1. systeem info opvragen
-2. windows user (standaard rol)
-3. install msi (standaardb rol)
-4. remove msi (standaard rol)
-5. uitvoeren eige powershell
+1. Get facts from windows hosts
+2. Create and remove local windows user (standard Ansible role)
+3. Install and remove program with msi (standard Ansible role)
+4. Execute Powershell script
+5. Use Powershell helper parts from Ansible
 
-Voorbereiden
+Preparation
 ------------
 
 Server: winRm python package
 `pip install http://github.com/diyan/pywinrm/archive/master.zip#egg=pywinrm`
 
-
-
 Server: inventory
 
 ```
-[win-ontw]
-wingis.geodan.nl
+[win-dev]
+windows-dev..nl
 
 [win-test]
-wingis.test.geodan.nl
+windows-test.geodan.nl
 ```
 
 Server: group_vars
@@ -34,29 +32,27 @@ Server: group_vars
 # ansible-vault edit group_vars/windows.yml
 
 ansible_ssh_user: ansible
-ansible_ssh_pass: SuperGeheimeWachtwoord
+ansible_ssh_pass: SomeSecretPassword
 ansible_ssh_port: 5986
 ansible_connection: winrm
-``
+```
 
-Client, volgens https://github.com/ansible/ansible/blob/devel/examples/scripts/ConfigureRemotingForAnsible.ps1
-                https://github.com/cchurch/ansible/blob/devel/examples/scripts/ConfigureRemotingForAnsible.ps1
-Dit script zet alles in winrm open; beter is het om de listener alleen te laten luisteren naar 1 ip nummer (bv van de Ansible machine)
+Prepare controlled windows machine:
+See:  https://github.com/ansible/ansible/blob/devel/examples/scripts/ConfigureRemotingForAnsible.ps1
 
-Eerst Powershell 3 : https://github.com/cchurch/ansible/blob/devel/examples/scripts/upgrade_to_ps3.ps1
+Script opens Winrm and firewall for all hosts. For security reasons it might be better to restrict access to the specific control machine
 
-Om te zien welke WinRm listeners er zijn in Powershell uitvoeren:
-`winrm e winrm/config/listener`
+If still using Powershell 2 first upgrade: https://github.com/cchurch/ansible/blob/devel/examples/scripts/upgrade_to_ps3.ps1
 
-Test: `ansible -i win-inventory win-test -m setup`
-of ` ansible -i win-inventory win-ontw -m win_ping`
+To see which WinRM listeners are configured use in Powershell:  `winrm e winrm/config/listener`
 
+Test setup and connection
+-------------------------
 
+From machine running Ansible:  `ansible -i win-inventory win-test -m setup` or `ansible -i win-inventory win-ontw -m win_ping`
 
-Ansible versie: `ansible --version`, geeft lokaal:  _ansible 1.9 (devel 86202b9fe3) last updated 2014/11/27 13:33:10 (GMT +200)_
+Windows-stat module :
 
-
-Testje met windows-stat module :
 ```
 - name: test stat module
   hosts: win-ontw
@@ -76,12 +72,12 @@ Testje met windows-stat module :
              - "stat_file.stat.md5"
 ```
 
+Create windows user 
+-------------------
 
-Windows user aanmaken
----------------------
 ```yml
-- name: test windows user aanmaken
-  hosts: win-ontw
+- name: Create local windows user
+  hosts: win-dev
   tasks:
     - name: test win user 
       win_stat: path="C:/Windows/win.ini"
@@ -90,11 +86,12 @@ Windows user aanmaken
 
 Windows get url 
 ---------------
+
 ```yml
 ---
 # Playbook example
-- name: Download notepad install file
-  hosts: win-ontw
+- name: Download notepad++ install file
+  hosts: win-dev
   gather_facts: false
 
   tasks:
@@ -108,5 +105,5 @@ Windows get url
 Resources:
 ----------
 
-http://docs.ansible.com/intro_windows.html
-http://oriolrius.cat/blog/2015/01/29/ansible-and-windows-playbooks/
+- http://docs.ansible.com/intro_windows.html
+- http://oriolrius.cat/blog/2015/01/29/ansible-and-windows-playbooks/
