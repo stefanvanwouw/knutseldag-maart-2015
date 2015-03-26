@@ -53,6 +53,7 @@
   docker:
     image: redmine-backlogs
     name: redmine-app
+    volumes_from: redmine-app-data
     env:
       SERVICE_NAME: redmine
       DB_USER: redmine
